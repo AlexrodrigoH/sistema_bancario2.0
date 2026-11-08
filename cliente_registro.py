@@ -1,11 +1,10 @@
 class Dados_do_cliente:
-    def __init__(self, nome, idade, endereco, cpf, nascimento):
+    def __init__(self, nome = "", nascimento = "", cpf = "",endereco = None):
         self.nome = nome
-        self.idade = idade
         self.endereco = endereco
         self.cpf = cpf
         self.nacimento = nascimento
-    def endereco_cliente(self, bairro, rua, numero, ref = "NA"):
+    def endereco_cliente(self, bairro, rua, numero, ref = "N/A"):
         self.endereco = {"bairro": bairro, "rua": rua, "numero": numero, "referencia": ref}
 class Cliente_novo:
     def novo_cliente(self):
