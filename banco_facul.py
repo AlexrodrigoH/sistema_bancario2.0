@@ -2,6 +2,7 @@ import validacao_entrada
 import cliente_registro
 import texto_colorido
 import msvcrt
+import retorno
 
 while True:
     print("="*30)
