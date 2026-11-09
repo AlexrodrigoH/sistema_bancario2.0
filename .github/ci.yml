@@ -1,0 +1,21 @@
+name: CI - Racas de Animais
+
+on:
+  pull_request:
+    branches: [main]
+jobs:
+  verificar_codigo:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Baixar codigo do repositorio
+        uses: actions/checkout@v4
+
+      - name: Configurar Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.14'
+      - name: Verificar versao do Python
+        run: python --version
+
+      - name: Verificar sintaxe
+        run: python -m compileall .
