@@ -10,5 +10,6 @@ class Retorno:
         elif self.seguir == "corrigir":
             return True
         elif self.seguir == "confirmar":
+            pass
             return False
         
