@@ -1,4 +1,6 @@
 import texto_colorido
+import verificacao_de_cliente
+from datetime import date, datetime
 
 class Validar_entrada:
     def __init__(self, entrada):
@@ -70,10 +72,10 @@ class Validar_entrada:
                 if not self.entrada.isalpha() and self.entrada not in " '":
                     return False
             case "nascimento":
-                if not self.entrada.isdigit() and self.entrada not in "/":
+                if self.entrada not in "0123456789":
                     return False
             case "cpf":
-                if not self.entrada.isdigit() and self.entrada not in ".-":
+                if self.entrada not in "0123456789":
                     return False
         return True
     def fluxo_entrada(self, tipo = ""):
@@ -92,3 +94,63 @@ class Validar_entrada:
         if not self.validar_entrada_teclado():
             self.entrada = ""
         return "continuar"
+    def validar_digito_nascimento(self, inicial):
+        if self.entrada not in "0123456789" or not self.entrada:
+            return False
+        candidato = inicial + self.entrada
+        tamanho = len(candidato)
+        if tamanho > 8:
+            return False
+        if tamanho == 1:
+            return candidato in "0123"
+        dia = int(candidato[:2])
+        if not 1 <= dia <= 31:
+            return False
+        if tamanho == 3:
+            return candidato[2] in "01"
+        if tamanho >= 4:
+            mes = int(candidato[2:4])
+            try:
+                date(2000, mes, dia)
+            except ValueError:
+                return False
+        if tamanho == 8:
+            try:
+                nascimento = date(int(candidato[4:]), mes, dia)
+            except ValueError:
+                return False
+            return self.nascimento_permitido(nascimento)
+        return True
+
+    def validar_digito_cpf(self, inicial):
+        if not self.entrada or self.entrada not in "0123456789":
+            return False
+        candidato = inicial + self.entrada
+        if len(candidato) > 11:
+            return False
+        return True
+
+    def validar_cpf(self):
+        return verificacao_de_cliente.Validar_cpf().cpf_valido(self.entrada)
+
+    def nascimento_permitido(self, nascimento):
+        hoje = date.today()
+        if nascimento > hoje:
+            return False
+        idade = hoje.year - nascimento.year
+        if (hoje.month, hoje.day) < (nascimento.month, nascimento.day):
+            idade -= 1
+        return 0 <= idade <= 130
+
+    def validar_nascimento(self):
+        entrada = self.entrada.strip()
+        try:
+            nascimento = datetime.strptime(entrada, "%d/%m/%Y").date()
+        except ValueError:
+            return False
+        if nascimento.strftime("%d/%m/%Y") != entrada:
+            return False
+        if not self.nascimento_permitido(nascimento):
+            return False
+        self.entrada = nascimento
+        return True
