@@ -23,36 +23,47 @@ class Validar_entrada:
         if self.entrada == "" or self.entrada == "\r":
             texto_colorido.Texto_colorido("\nERROR - 002VS - Entrada vazia nao permitida.").cor_vermelho()
             return False
+        nome_split = self.entrada.split()
+        change = 0
+        for nome in nome_split:
+            nome_tratado = ""
+            cont = 0
+            nome = nome.strip("'")
+            for letra in nome:
+                if letra == "'":
+                    cont += 1
+                    if cont > 1:
+                        continue
+                nome_tratado += letra
+            nome = nome_tratado.strip("'")
+            nome_split[change] = nome
+            if nome[:1] == "'" or nome[-1:] == "'":
+                if nome[:1] == "'":
+                    nome_split[change] = nome[1:]
+                if nome[-1:] == "'":
+                    nome_split[change] = nome[:-1]
+            change += 1
+            test = nome.replace("'", "")
+            if not test.isalpha():
+                texto_colorido.Texto_colorido("\nERROR - 006VS - Digite apenas letras.").cor_vermelho()
+                return False
+        self.entrada = " ".join(nome_split).strip()
         if len(self.entrada) > 100 or len(self.entrada) < 3:
             texto_colorido.Texto_colorido("\nERROR - 003VS - Nome nao permitido.").cor_vermelho()
             return False
-        nome_split = self.entrada.split()
-        cont = 0
-        for nome in nome_split:
-            for letra in nome:
-                if letra == "'" or cont > 1:
-                    cont += 1
-                    if cont > 1:
-                        texto_colorido.Texto_colorido("\nERROR - 004VS - Nome invalido.").cor_vermelho()
-                        return False
-        nome_split[0] = nome_split[0].replace("'", "")
-        for nome in nome_split:
-            if not nome.isalpha():
-                texto_colorido.Texto_colorido("\nERROR - 005VS - Digite apenas letras.").cor_vermelho()
-                return False
         for nome in nome_split:
             cont = 0
             for letra in nome:
                 if cont + 2 >= len(nome):
                     break
                 if letra == nome[cont+1] and letra == nome[cont+2]:
-                    texto_colorido.Texto_colorido("\nERROR - 006VS - Nome incorreto.").cor_vermelho()
+                    texto_colorido.Texto_colorido("\nERROR - 007VS - Nome incorreto.").cor_vermelho()
                     return False
                 cont += 1
         return True
     def validar_entrada_teclado(self):
         if self.entrada == "" or self.entrada == "\r":
-            texto_colorido.Texto_colorido("\nERROR - 007VT - Entrada vazia nao permitida.").cor_vermelho()
+            texto_colorido.Texto_colorido("\nERROR - 008VT - Entrada vazia nao permitida.").cor_vermelho()
             return False
         match self.tipo:
             case "nome":
@@ -68,20 +79,16 @@ class Validar_entrada:
     def fluxo_entrada(self, tipo = ""):
         self.tipo = tipo
         nome = self.entrada
-       #print(f"\nFluxo de entrada: {nome}\n")
         if nome[0] == "\x1b" or nome[-1] == "\x1b":
             self.entrada = nome[:-1]
             texto_colorido.Texto_colorido("\nRetornando ao menu...").cor_alaranjado()
             return "cancelar"
-        if nome[-1] == "\x08":
-            self.entrada = nome[:-2]
+        if nome == "\x08":
+            self.entrada = ""
             return "corrigir"
         if nome == "\r":
-            self.entrada = nome[:-1]
+            self.entrada = ""
             return "confirmar"
-        teste_teclado = self.validar_entrada_teclado()
-        if not teste_teclado:
-            self.entrada = nome[:-1]
-            return "continuar"
-        else:
-            return "continuar"
+        if not self.validar_entrada_teclado():
+            self.entrada = ""
+        return "continuar"

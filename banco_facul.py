@@ -23,47 +23,22 @@ while True:
             continue
         if opcao == 1:
             print("Cadastrar cliente")
-            validar.entrada = ""
-            inicial = ""
-            print("**PARA CANCELAR O CADASTRO, APERTE A TECLA ESCAPE (ESC)**\n")
-            while True:
-                print(f"\r\033[2KNome: {inicial}", end="", flush=True)
-                validar.entrada = msvcrt.getwch()
-                teste = validar.fluxo_entrada("nome")
-                if teste == "cancelar":
-                    break
-                elif teste == "corrigir":
-                    inicial = inicial[:-1]
-                    continue
-                elif teste == "continuar":
-                    inicial += validar.entrada
-                    continue
-                elif teste == "confirmar":
-                    inicial = " ".join(inicial.split()).upper()
-                    validar.entrada = inicial
-                    if not validar.validar_entrada_str():
-                        continue
-                    break
-            print(f"\nFAIXA TESTE - {validar.entrada}\n") 
+            print(
+                "**PARA CANCELAR O CADASTRO, "
+                "APERTE A TECLA ESCAPE (ESC)**\n"
+            )
+            condicao_retorno = retorno.Retorno()
+            confirmado = condicao_retorno.retornar_seguir(
+                validar,
+                "nome",
+                "Nome: ",
+                validar.validar_entrada_str
+            )
+            if not confirmado:
+                continue
             dados_cliente.nome = validar.entrada
+            print(f"\nFAIXA TESTE - {dados_cliente.nome}\n")
             validar.entrada = ""
-            print(f"\nTeste - aqui deve estar vazio -> {validar.entrada}\n")
-            while True:
-                print(f"\r\033[2kAno de nascimento (dd/mm/aaaa): {validar.entrada}", end="", flush=True)
-                validar.entrada += msvcrt.getwch()
-                teste = validar.fluxo_entrada("nascimento")
-                if teste == "cancelar":
-                    break
-                elif teste == "continuar":
-                    continue
-                elif teste == "confirmar":
-                    if not validar.validar_entrada_nume():
-                        validar.entrada = ""
-                        continue
-                    else:
-                        validar.entrada = "".join(validar.entrada.strip().split())
-                    break
-                print(f"\nAno de nascimento digitado: {validar.entrada}\n")
         if opcao == 2:
             print("\nConsultar cliente")
             print("Funcao nao implementada.\n")
