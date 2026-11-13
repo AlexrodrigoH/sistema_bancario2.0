@@ -28,17 +28,35 @@ while True:
                 "APERTE A TECLA ESCAPE (ESC)**\n"
             )
             condicao_retorno = retorno.Retorno()
-            confirmado = condicao_retorno.retornar_seguir(
-                validar,
-                "nome",
-                "Nome: ",
-                validar.validar_entrada_str
-            )
+            confirmado = condicao_retorno.retornar_seguir(validar, "nome", "Nome: ", validar.validar_entrada_str)
             if not confirmado:
                 continue
             dados_cliente.nome = validar.entrada
             print(f"\nFAIXA TESTE - {dados_cliente.nome}\n")
             validar.entrada = ""
+            confirmado = condicao_retorno.retornar_seguir(
+                validar,
+                "nascimento",
+                "DATA: ",
+                validar.validar_nascimento
+            )
+            if not confirmado:
+                continue
+            dados_cliente.nascimento = validar.entrada
+            print(
+                f"Nascimento: {dados_cliente.nascimento:%d/%m/%Y}\n"
+                f"Idade: {dados_cliente.calcular_idade()} anos"
+            )
+            validar.entrada = ""
+            confirmado = condicao_retorno.retornar_seguir(
+                validar,
+                "cpf",
+                "CPF: ",
+                validar.validar_cpf
+            )
+            if not confirmado:
+                continue
+            dados_cliente.cpf = validar.entrada
         if opcao == 2:
             print("\nConsultar cliente")
             print("Funcao nao implementada.\n")
