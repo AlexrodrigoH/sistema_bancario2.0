@@ -1,16 +1,8 @@
-class Cliente_valido:
-    def __init__(self, idade = 0, ano = 0, cpf = 0):
-        self.idade = idade
-        self.ano = ano
-        self.cpf = cpf
-class Validar_idade:
-    def idade_valida(self,idade):
-        pass
-class Validar_ano:
-    def ano_valido(self, ano):
-        pass
+"""Verifica o formato e os dígitos verificadores do CPF."""
+
 class Validar_cpf:
     def calcular_digito(self, cpf):
+        """Calcula um dígito verificador usando a soma ponderada e o resto por onze."""
         soma = 0
         peso = len(cpf) + 1
         for numero in cpf:
@@ -20,6 +12,7 @@ class Validar_cpf:
         return 0 if resto < 2 else 11 - resto
 
     def cpf_valido(self, cpf):
+        """Confere tamanho, dígitos ASCII, repetição e os dois verificadores; não consulta identidade real."""
         if len(cpf) != 11 or any(numero not in "0123456789" for numero in cpf):
             return False
         if len(set(cpf)) == 1:

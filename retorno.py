@@ -1,9 +1,13 @@
+"""Captura teclas no Windows e coordena confirmação, correção e cancelamento dos campos."""
+
 import msvcrt
 
 class Retorno:
     def __init__(self, seguir="cancelar"):
+        """Inicia o estado usado para acompanhar o fluxo de captura."""
         self.seguir = seguir
     def retornar_seguir(self, validar, tipo, mensagem, validar_campo):
+        """Atualiza o terminal a cada tecla e retorna True somente após validar o campo completo."""
         inicial = ""
         while True:
             exibicao = inicial

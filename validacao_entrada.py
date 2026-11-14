@@ -1,11 +1,15 @@
+"""Valida campos e teclas e traduz entradas em estados do fluxo de captura."""
+
 import texto_colorido
 import verificacao_de_cliente
 from datetime import date, datetime
 
 class Validar_entrada:
     def __init__(self, entrada):
+        """Guarda a entrada que será validada ou normalizada pelos métodos desta instância."""
         self.entrada = entrada
     def validar_entrada_nume(self):
+        """Aceita somente dígitos ASCII e converte a entrada válida para inteiro."""
         self.entrada = self.entrada.strip()
         if not self.entrada.isdigit():
             texto_colorido.Texto_colorido("\nERROR - 000VN - DIGITE APENAS NÚMEROS.").cor_vermelho()
@@ -21,6 +25,7 @@ class Validar_entrada:
         except ValueError:
             return False
     def validar_entrada_str(self):
+        """Normaliza espaços e apóstrofos e aplica as regras atuais de letras e tamanho."""
         self.entrada = self.entrada.strip()
         if self.entrada == "" or self.entrada == "\r":
             texto_colorido.Texto_colorido("\nERROR - 002VS - Entrada vazia nao permitida.").cor_vermelho()
@@ -64,12 +69,16 @@ class Validar_entrada:
                 cont += 1
         return True
     def validar_entrada_teclado(self):
+        """Filtra cada tecla conforme o tipo do campo que está sendo preenchido."""
         if self.entrada == "" or self.entrada == "\r":
             texto_colorido.Texto_colorido("\nERROR - 008VT - Entrada vazia nao permitida.").cor_vermelho()
             return False
         match self.tipo:
-            case "nome":
+            case "nome" | "bairro" | "rua" | "referencia":
                 if not self.entrada.isalpha() and self.entrada not in " '":
+                    return False
+            case "numero":
+                if self.entrada not in "0123456789":
                     return False
             case "nascimento":
                 if self.entrada not in "0123456789":
@@ -79,6 +88,7 @@ class Validar_entrada:
                     return False
         return True
     def fluxo_entrada(self, tipo = ""):
+        """Distingue ESC, Backspace, Enter e caracteres comuns para orientar a captura."""
         self.tipo = tipo
         nome = self.entrada
         if nome[0] == "\x1b" or nome[-1] == "\x1b":
@@ -95,6 +105,7 @@ class Validar_entrada:
             self.entrada = ""
         return "continuar"
     def validar_digito_nascimento(self, inicial):
+        """Impede dígitos que tornariam a data parcial ou completa inválida."""
         if self.entrada not in "0123456789" or not self.entrada:
             return False
         candidato = inicial + self.entrada
@@ -123,6 +134,7 @@ class Validar_entrada:
         return True
 
     def validar_digito_cpf(self, inicial):
+        """Limita o CPF a onze dígitos durante a digitação."""
         if not self.entrada or self.entrada not in "0123456789":
             return False
         candidato = inicial + self.entrada
@@ -131,9 +143,11 @@ class Validar_entrada:
         return True
 
     def validar_cpf(self):
+        """Delega a validação matemática do CPF ao módulo de verificação."""
         return verificacao_de_cliente.Validar_cpf().cpf_valido(self.entrada)
 
     def nascimento_permitido(self, nascimento):
+        """Rejeita datas futuras e idades fora do intervalo atual de zero a 130 anos."""
         hoje = date.today()
         if nascimento > hoje:
             return False
@@ -143,6 +157,7 @@ class Validar_entrada:
         return 0 <= idade <= 130
 
     def validar_nascimento(self):
+        """Converte a data completa em objeto date quando formato e idade são v?lidos."""
         entrada = self.entrada.strip()
         try:
             nascimento = datetime.strptime(entrada, "%d/%m/%Y").date()
