@@ -4,7 +4,7 @@
 
 **Sistema bancário simulado em Python, desenvolvido para estudo de programação, orientação a objetos e modelagem de processos com BPMN 2.0.**
 
-> **Status:** em desenvolvimento — etapa **P01: Cadastro e abertura de conta**. A captura e a validação inicial de nomes já possuem uma implementação funcional e foram submetidas a testes manuais. O cadastro bancário completo ainda não está concluído.
+> **Status:** P01 implementado como simulação local: cadastro, consentimento, KYC com listas fictícias, revisão manual, criação e ativação de conta, auditoria e notificações no terminal. Os fluxos possuem testes automatizados; a conferência de identidade é uma etapa manual do exercício.
 
 ## Sobre o projeto
 
@@ -31,6 +31,10 @@ O objetivo é exercitar **Python, POO, organização em módulos, validação de
 sistema_bancario2.0/
 ├── banco_facul.py
 ├── cliente_registro.py
+├── processo_abertura.py
+├── listas_simuladas.json
+├── retorno.py
+├── test_p01.py
 ├── texto_colorido.py
 ├── validacao_entrada.py
 ├── verificacao_de_cliente.py
@@ -40,11 +44,15 @@ sistema_bancario2.0/
 
 | Módulo | Responsabilidade atual ou prevista |
 
-| `banco_facul.py`              | Menu principal, navegação e captura de dados do usuário. 
-| `cliente_registro.py`         | Modelagem dos dados do cliente, incluindo endereço e estrutura inicial de registro/persistência. 
+| `banco_facul.py`              | Menu principal, navegação e apresentação de falhas de persistência. 
+| `cliente_registro.py`         | Dados do cliente, captura do cadastro, consulta, atualização, análise e persistência em PKL. 
+| `processo_abertura.py`        | Consentimento, conferência de identidade, KYC simulado, conta, auditoria e notificações locais. 
+| `listas_simuladas.json`       | CPFs fictícios para os caminhos de recusa e revisão manual. 
+| `retorno.py`                 | Captura de teclas, máscaras e confirmação ou cancelamento dos campos. 
+| `test_p01.py`                | Testes automatizados em arquivos temporários. 
 | `texto_colorido.py`           | Apresentação de mensagens no terminal em verde, vermelho e laranja. 
 | `validacao_entrada.py`        | Validação de números, strings, teclas e tratamento do fluxo de captura. 
-| `verificacao_de_cliente.py`   | Estrutura inicial para verificar idade, nascimento e CPF. 
+| `verificacao_de_cliente.py`   | Validação do formato e dos dígitos verificadores do CPF. 
 
 > Algumas classes e métodos ainda estão em construção. A presença de um arquivo não significa que sua funcionalidade já esteja concluída.
 
@@ -56,7 +64,7 @@ sistema_bancario2.0/
 - [x] Validação inicial da opção digitada, com conversão numérica quando válida.
 - [x] Separação de responsabilidades em arquivos e classes.
 - [x] Mensagens de saída coloridas com uma classe reutilizável.
-- [ ] Consulta efetiva de clientes cadastrados.
+- [x] Consulta de clientes aprovados, atualização e pesquisa por nome ou CPF.
 
 ### Captura e validação de nomes
 
@@ -111,7 +119,7 @@ O roadmap está organizado em **11 processos (P00–P10)**:
 O fluxo desenhado no BPMN compreende:
 
 1. **Solicitar abertura** de conta.
-2. **Informar dados e aceitar termos.** ← **etapa atual**, com foco inicial nas entradas e validações.
+2. **Informar dados e aceitar termos.**
 3. **Validar campos e consentimento.**
 4. **Decidir se os dados são válidos.**
 5. **Verificar identidade duplicada** e existência de cadastro anterior.
@@ -121,18 +129,32 @@ O fluxo desenhado no BPMN compreende:
 9. **Ativar a conta após aprovação** e registrar auditoria.
 10. **Disponibilizar a conta e notificar** o cliente, ou registrar pendência/recusa.
 
-O BPMN original detalha esse fluxo em 16 elementos/etapas. A etapa atual **não equivale ao P01 concluído**.
+O BPMN original detalha esse fluxo em 16 elementos/etapas. A implementação cobre o exercício local, com identidade conferida manualmente, listas fictícias e notificações registradas no próprio sistema.
 
-**Próximas entregas previstas para P01:**
+**Entregas do P01:**
 
-- [ ] Completar a coleta de nome, endereço, CPF e data de nascimento.
-- [ ] Validar matematicamente os dígitos verificadores do CPF.
-- [ ] Conferir coerência entre idade declarada e data de nascimento, considerando o aniversário no ano corrente.
-- [ ] Implementar verificações cadastrais simuladas sob regras definidas pelo projeto.
-- [ ] Detectar clientes duplicados.
-- [ ] Implementar aceite de termos, estados de aprovação, pendência e recusa.
-- [ ] Persistir os dados do cliente e da conta com tratamento adequado de erros.
-- [ ] Criar testes para caminhos de sucesso e exceção previstos no BPMN.
+- [x] Coletar nome, endereço, CPF e data de nascimento.
+- [x] Validar matematicamente os dígitos verificadores do CPF.
+- [x] Calcular a idade pela data de nascimento e verificar os limites atuais do projeto.
+- [x] Executar verificações cadastrais simuladas e permitir revisão manual justificada.
+- [x] Detectar clientes duplicados.
+- [x] Exigir aceite de termos e registrar aprovação, pendência ou recusa.
+- [x] Persistir cliente, conta, histórico e notificações no PKL com substituição por arquivo temporário.
+- [x] Testar os caminhos de sucesso, cancelamento e falhas de persistência.
+
+### Uso do fluxo de abertura
+
+1. **Cadastrar cliente:** valida os dados e solicita o aceite dos termos educacionais. Sem aceite, não grava o cadastro.
+2. **Analisar clientes pendentes → Analisar pendentes ou concluir abertura antiga:** apresenta os dados, permite marcar erros e solicita a conferência manual de identidade antes da aprovação. O KYC consulta apenas `listas_simuladas.json`.
+3. **Revisão manual:** um CPF marcado para revisão exige justificativa. É possível manter pendente, aprovar ou recusar a abertura. Identidade não confirmada mantém o cliente pendente e não cria conta.
+4. **Aprovação:** cria uma conta com identificador próprio e estado inativo; registra a aprovação, ativa a conta e registra a notificação local. Os eventos preservam a sequência dessas transições.
+5. **Histórico e notificações:** dentro do menu de análise, pesquise pelo CPF para conferir os eventos datados e as mensagens de qualquer status. As datas do histórico usam UTC, indicado pelo deslocamento `+00:00`.
+
+As listas iniciais são exclusivamente fictícias: `11144477735` exercita recusa e `12345678909` exercita revisão manual. `52998224725` permite testar o caminho de aprovação após conferência de identidade. Esses exemplos não informam a situação real de nenhuma pessoa.
+
+Clientes antigos não recebem aceite, conta ou análise presumidos. Os aprovados que ainda não têm conta aparecem também na opção de concluir abertura antiga. O arquivo existente só é atualizado após uma ação confirmada.
+
+O menu principal mantém **4 — Atualizar dados** e **5 — Sair**. A atualização de um cadastro aprovado preserva seu status e número de conta e acrescenta eventos ao histórico. Uma correção ainda marcada precisa ser resolvida pela subopção de correções antes da aprovação.
 
 ## Diretrizes para os próximos processos
 
@@ -168,7 +190,13 @@ py banco_facul.py
 
 A implementação é incremental: cada novo comportamento é testado no terminal e revisado com o debugger do VS Code. Os cenários testados até aqui incluem campos vazios, nomes compostos, acentuação, caracteres inválidos, repetições excessivas e interação com teclas especiais.
 
-**Ainda não há indicação de uma suíte automatizada de testes neste estágio.** Testes automatizados fazem parte da evolução planejada.
+Execute a suíte do P01 no Windows:
+
+```bash
+python -B -m unittest test_p01 -v
+```
+
+Os testes usam arquivos temporários e entradas simuladas; não alteram `clientes.pkl`. Cada módulo e função Python possui uma docstring explicando sua responsabilidade. A validação de nascimento e idade fica em `Validar_entrada`; a verificação matemática do CPF fica em `Validar_cpf`.
 
 ## Documentação BPMN
 
